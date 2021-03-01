@@ -26,8 +26,8 @@ public class APITestNG {
     static int ID;
     static  int postID;
 
-    String name = "Mustafa";
-    String mail = "Musta03";
+    String name = "MustafaE";
+    String mail = "Musta04";
     String rename = "MustafaCocomore";
     String bodyUser = "{\n" +
             "    \"name\": \""+name+"\",\n" +
