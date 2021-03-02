@@ -1,34 +1,24 @@
+
 package com.tester.stepDef;
-import static io.restassured.RestAssured.*;
 
 import com.tester.utilities.ConfigurationReader;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.Assert;
 
-// 1.    Create a user
-// 2.    Verify that user is created successfully (201)
-// 3.    Rename created user
-// 4.    Verify that update has been made for given user
-// 5.    Create a post for given user
-// 6.    Verify that post is created successfully for given user (201)
-// 7.    Create a comment for given post
-// 8.    Verify that comment is created successfully for given post (201)
-// 9.    Verify that comment is connected correct user
-// 10.   Delete created user
-// 11.   Verify that user is deleted (204)
+import static io.restassured.RestAssured.given;
 
-public class APITestNG {
+public class APITaskStepDefs {
     Response response;
     static int ID;
     static  int postID;
 
-    String name = "Mustaaa";
-    String mail = "Musta45";
-    String rename = "Musta33";
+    String name = "Mustafaq10";
+    String mail = "mustafa10";
+    String rename = "MustafaCoc1";
     String bodyUser = "{\n" +
             "    \"name\": \""+name+"\",\n" +
             "    \"gender\": \"Male\",\n" +
@@ -49,101 +39,108 @@ public class APITestNG {
             "    \"email\": \""+mail+"@gmail.com\",\n" +
             "    \"body\": \"Cocomore\"\n" +
             "}";
-    @BeforeClass
-    public static void beforeClass() {
 
-        baseURI = "https://gorest.co.in";
-    }
 
-    @Test(priority = 1)
-    public void createUserAndVerify() {
-// 1.    Create a user
-        Response response=given().accept(ContentType.JSON)
+    @When("Create a user with given details")
+    public void create_a_user_with_given_details(io.cucumber.datatable.DataTable dataTable) throws InterruptedException {
+         response=given().accept(ContentType.JSON)
                 .and().contentType(ContentType.JSON)
                 .and().header("Authorization", ConfigurationReader.get("token"))
                 .body(bodyUser)
                 .when().post("/public-api/users");
         response.prettyPrint();
+
+    }
+
+    @Then("Verify that user is created successfully for given details with status code {int}")
+    public void verify_that_user_is_created_successfully_for_given_details_with_status_code(Integer int1) {
         JsonPath jsonPath = response.jsonPath();
         int code = jsonPath.get("code");
-
-// 2.    Verify that user is created successfully (201)
         Assert.assertEquals(201, code);
         ID = jsonPath.get("data.id");
-    }
-    @Test(priority = 2)
-    public void RenameUser() {
-// 3.    Rename created user
+        }
+
+    @When("Rename created user")
+    public void rename_created_user(io.cucumber.datatable.DataTable dataTable) {
         response = given()
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
-                .and().header("Authorization",ConfigurationReader.get("token"))
+                .and().header("Authorization", ConfigurationReader.get("token"))
                 .and().pathParam("id", ID)
                 .and().body(bodyRename)
                 .patch("/public-api/users/{id}");
         response.prettyPrint();
 
-// 4.    Verify that update has been made for given user
+    }
 
+    @Then("Verify that update has been made for given user with status code {int}")
+    public void verify_that_update_has_been_made_for_given_user_with_status_code(Integer int1) {
         JsonPath jsonPath = response.jsonPath();
-
         int code = jsonPath.get("code");
         Assert.assertEquals(code, 200);
-        System.out.println("ExpectedName = " + jsonPath.get("data.name"));
         Assert.assertEquals(name,jsonPath.get("data.name"));
-
     }
-    @Test(priority = 3)
-    public void createPost() {
-// 5.    Create a post for given user
+
+    @When("Create a post for given user")
+    public void create_a_post_for_given_user(io.cucumber.datatable.DataTable dataTable) {
         response = given()
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
-                .and().header("Authorization",ConfigurationReader.get("token"))
+                .and().header("Authorization", ConfigurationReader.get("token"))
                 .and().pathParam("id", ID)
                 .and().body(bodyUpdate)
                 .post("/public-api/users/{id}/posts");
         response.prettyPrint();
+    }
+
+    @Then("Verify that post is created successfully for given user with status code {int}")
+    public void verify_that_post_is_created_successfully_for_given_user_with_status_code(Integer int1) {
         JsonPath jsonPath = response.jsonPath();
         int code = jsonPath.get("code");
-// 6.    Verify that post is created successfully for given user (201)
         Assert.assertEquals(201,code);
         postID=jsonPath.get("data.id");
-        System.out.println("postID = " + postID);
 
-    }
-    @Test(priority = 4)
-    public void commentForGivenPost(){
+         }
 
-// 7.    Create a comment for given post
+    @When("Create a comment for given post with given details")
+    public void create_a_comment_for_given_post_with_given_details(io.cucumber.datatable.DataTable dataTable) {
         response = given()
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
-                .and().header("Authorization",ConfigurationReader.get("token"))
+                .and().header("Authorization", ConfigurationReader.get("token"))
                 .and().pathParam("id", postID)
                 .and().body(CommentBody)
                 .post("/public-api/posts/{id}/comments");
         response.prettyPrint();
-// 8.    Verify that comment is created successfully for given post (201)
+    }
+
+    @Then("Verify that comment is created successfully for given post with status code {int}")
+    public void verify_that_comment_is_created_successfully_for_given_post_with_status_code(Integer int1) {
         JsonPath jsonPath = response.jsonPath();
         int code = jsonPath.get("code");
         Assert.assertEquals(201,code);
-// 9.    Verify that comment is connected correct user
-        int post_id=jsonPath.get("data.post_id");
-        Assert.assertEquals(post_id,postID);
+        }
 
+    @Then("Verify that comment is connected correct user")
+    public void verify_that_comment_is_connected_correct_user() {
+        JsonPath jsonPath = response.jsonPath();
+        int post_id=jsonPath.get("data.post_id");
+
+        Assert.assertEquals(post_id,postID);
     }
-    @Test(priority = 5)
-    public void deleteUser(){
-// 10.   Delete created user
-        System.out.println(ID);
+
+    @When("Delete created user")
+    public void delete_created_user() {
         response =  given().pathParam("id", ID)
-                .and().header("Authorization",ConfigurationReader.get("token"))
+                .and().header("Authorization", ConfigurationReader.get("token"))
                 .when().delete("/public-api/users/{id}");
-// 11.   Verify that user is deleted (204)
+    }
+
+    @Then("Verify that user is deleted with status code {int}")
+    public void verify_that_user_is_deleted_with_status_code(Integer int1) {
         JsonPath jsonPath = response.jsonPath();
         int code = jsonPath.get("code");
         Assert.assertEquals(204,code);
     }
-}
 
+}
